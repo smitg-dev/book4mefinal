@@ -52,16 +52,4 @@ bookfromspace/
 ## 🛠️ How to Run & Integrate
 
 ### Option 1: Standalone Direct Launch
-Simply open `bookfromspace/index.html` in any web browser or use a local web server (e.g. Vite, Live Server, `npx serve bookfromspace`).
-
-### Option 2: TypeScript Compilation
-To compile the TypeScript source files:
-```bash
-cd bookfromspace
-npx tsc
-```
-
----
-
-## 🔒 Scope & Isolation Guarantee
-This module is strictly self-contained within `d:\Projects\VSCODE\Book4meFinal\bookfromspace\`. No external files in the parent codebase were modified or impacted.
+Simply open `bookfromspace/index.html` in any web browser or use a local web server 

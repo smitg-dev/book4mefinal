@@ -1,18 +1,19 @@
-// BookFromSpace - Standalone Self-Contained Web Application
-// Compiled & Bundled JS Module for Direct Browser Execution
+// bookfromspace.js
+// booking widget for the space tourism site - single file so it's easy to drop in
+// NOTE: reservations just live in localStorage for now, swap for a real API later
 
 (function () {
   'use strict';
 
-  // Seed Data
+  // ---- destinations ----
+  // TODO: pull this from a CMS/API once we have one, hardcoding for the demo
   const CELESTIAL_BODIES = [
     {
       id: 'mars',
       name: 'Mars (Ares Hub)',
       category: 'planet',
       tagline: 'The Red Frontier & Olympus Mons Gateway',
-      description:
-        'Home to the iconic Valles Marineris and humanity’s prime terraforming sector. Features pressurized luxury domes, rover expeditions, and low-g skydiving.',
+      description: 'Home to the iconic Valles Marineris and humanity\'s prime terraforming sector. Features pressurized luxury domes, rover expeditions, and low-g skydiving.',
       distanceFromEarth: '225 Million km',
       gravity: '0.38g',
       temperature: '-63°C',
@@ -30,9 +31,8 @@
       id: 'moon',
       name: 'Luna Gateway (Moon)',
       category: 'moon',
-      tagline: 'Earth’s Orbital Companion & Shackleton Outpost',
-      description:
-        'The closest cosmic destination featuring permanent lunar habitat suites, dark-side observatories, and historical Apollo landing site tours.',
+      tagline: "Earth's Orbital Companion & Shackleton Outpost",
+      description: 'The closest cosmic destination featuring permanent lunar habitat suites, dark-side observatories, and historical Apollo landing site tours.',
       distanceFromEarth: '384,400 km',
       gravity: '0.166g',
       temperature: '-130°C to +120°C',
@@ -50,9 +50,8 @@
       id: 'europa',
       name: 'Europa Cryo Terminal',
       category: 'moon',
-      tagline: 'Jupiter’s Ocean Moon & Sub-Surface Habitat',
-      description:
-        'A subterranean liquid ocean beneath 15km of pristine ice. Experience sub-ice submersible explorations and Jupiter’s breathtaking giant horizon.',
+      tagline: "Jupiter's Ocean Moon & Sub-Surface Habitat",
+      description: 'A subterranean liquid ocean beneath 15km of pristine ice. Experience sub-ice submersible explorations and Jupiter\'s breathtaking giant horizon.',
       distanceFromEarth: '628 Million km',
       gravity: '0.134g',
       temperature: '-160°C',
@@ -71,8 +70,7 @@
       name: 'ISS Orbital Hotel',
       category: 'satellite',
       tagline: 'Low Earth Orbit Microgravity Laboratory & Resort',
-      description:
-        'Orbit Earth every 90 minutes with 16 daily sunrises. Features zero-g astronaut training, spacewalk excursions, and panoramic Cupola views.',
+      description: 'Orbit Earth every 90 minutes with 16 daily sunrises. Features zero-g astronaut training, spacewalk excursions, and panoramic Cupola views.',
       distanceFromEarth: '408 km',
       gravity: '0.00g (Microgravity)',
       temperature: 'Station Controlled (21°C)',
@@ -91,8 +89,7 @@
       name: 'Titan Saturn Outpost',
       category: 'moon',
       tagline: 'Saturnian Cloud Gliding & Hydrocarbon Seas',
-      description:
-        'Dense golden atmosphere allowing humans to fly with simple mechanical wings! Includes Titan sea cruises on liquid methane lakes.',
+      description: 'Dense golden atmosphere allowing humans to fly with simple mechanical wings! Includes Titan sea cruises on liquid methane lakes.',
       distanceFromEarth: '1.4 Billion km',
       gravity: '0.138g',
       temperature: '-179°C',
@@ -111,8 +108,7 @@
       name: 'JWST Deep Relayer',
       category: 'satellite',
       tagline: 'Lagrange Point L2 Quantum Observatory',
-      description:
-        'Positioned 1.5M km behind Earth in deep space. Exclusive access to quantum satellite telemetry, infrared galaxy mapping, and quiet isolation.',
+      description: 'Positioned 1.5M km behind Earth in deep space. Exclusive access to quantum satellite telemetry, infrared galaxy mapping, and quiet isolation.',
       distanceFromEarth: '1.5 Million km (L2)',
       gravity: 'Microgravity',
       temperature: '-233°C (Shielded Side)',
@@ -129,215 +125,26 @@
   ];
 
   const SERVICES = [
-    {
-      id: 'srv-mars-1',
-      destinationId: 'mars',
-      title: 'Ares Dome Luxury Hotel & Olympus Base Stay',
-      category: 'hotel',
-      duration: '14 Days (Includes Orbit Transit)',
-      pricePerPersonUSD: 450000,
-      description:
-        'Stay in pressurized transparent habitat domes overlooking the red Martian desert. Includes gourmet freeze-dried & hydroponic dining.',
-      highlights: ['Olympus Mons view suite', 'Low-g gym', 'Pressurized Rover Tour'],
-      icon: '🏨',
-      availability: 'Available',
-    },
-    {
-      id: 'srv-mars-2',
-      destinationId: 'mars',
-      title: 'Valles Marineris Grand Canyon Expedition',
-      category: 'expedition',
-      duration: '5 Days',
-      pricePerPersonUSD: 180000,
-      description:
-        'Guided multi-day electric rover journey through the solar system’s largest canyon system.',
-      highlights: ['Geological core sampling', 'Cliffside observation deck', 'Drone photography'],
-      icon: '🚙',
-      availability: 'High Demand',
-    },
-    {
-      id: 'srv-mars-3',
-      destinationId: 'mars',
-      title: 'Martian Terraforming & Bio-Dome Tech Tour',
-      category: 'training',
-      duration: '3 Days',
-      pricePerPersonUSD: 95000,
-      description:
-        'Hands-on engineering workshop with top planetary scientists shaping Mars atmosphere.',
-      highlights: ['Algae farm inspection', 'Atmosphere generator controls', 'Certificate'],
-      icon: '🌱',
-      availability: 'Available',
-    },
-    {
-      id: 'srv-moon-1',
-      destinationId: 'moon',
-      title: 'Shackleton Crater South Pole Habitat Stay',
-      category: 'hotel',
-      duration: '7 Days',
-      pricePerPersonUSD: 220000,
-      description:
-        'Located on the rim of Shackleton Crater with eternal sunlight solar energy and water-ice mining vistas.',
-      highlights: ['Earth-rise viewing lounge', 'Lunar dust sauna', 'Zero-g ice skating'],
-      icon: '🏨',
-      availability: 'Available',
-    },
-    {
-      id: 'srv-moon-2',
-      destinationId: 'moon',
-      title: 'Apollo 11 Historic Site & Buggy Safari',
-      category: 'expedition',
-      duration: '2 Days',
-      pricePerPersonUSD: 85000,
-      description:
-        'Visit Tranquility Base from a safe historic preservation distance aboard a glass-canopy lunar buggy.',
-      highlights: ['Historic footprint observation', 'Moonwalk photo session', 'Commemorative coin'],
-      icon: '🏎️',
-      availability: 'Available',
-    },
-    {
-      id: 'srv-moon-3',
-      destinationId: 'moon',
-      title: 'Lunar Express Point-to-Point Shuttle',
-      category: 'transport',
-      duration: '3 Days Transit',
-      pricePerPersonUSD: 150000,
-      description:
-        'Direct rapid transit flight between Earth Orbit and Lunar Gateway with zero-g lounge amenities.',
-      highlights: ['Private capsule seat', 'Starlink Deep Space Wi-Fi', 'Complimentary suit fitting'],
-      icon: '🚀',
-      availability: 'Available',
-    },
-    {
-      id: 'srv-europa-1',
-      destinationId: 'europa',
-      title: 'Cryo-Ocean Submersible Deep Dive',
-      category: 'expedition',
-      duration: '10 Days',
-      pricePerPersonUSD: 890000,
-      description:
-        'Descend into the dark liquid ocean beneath Europa’s ice crust inside a titanium sub-surface submersible.',
-      highlights: ['Thermal vent inspection', 'Bioluminescent life scan', 'Jupiter skyline view'],
-      icon: '🌊',
-      availability: 'Waitlist',
-    },
-    {
-      id: 'srv-europa-2',
-      destinationId: 'europa',
-      title: 'Jovian Horizon Sky Suite & Ice Spa',
-      category: 'hotel',
-      duration: '12 Days',
-      pricePerPersonUSD: 640000,
-      description:
-        'Watch Jupiter’s Great Red Spot float across the sky from a heated orbital glass habitat station.',
-      highlights: ['Jupiter radiation shield room', 'Cryo-massage spa', 'Deep space dining'],
-      icon: '✨',
-      availability: 'High Demand',
-    },
-    {
-      id: 'srv-iss-1',
-      destinationId: 'iss',
-      title: 'Microgravity Spacewalk EVA Experience',
-      category: 'satellite',
-      duration: '4 Hours Active EVA (3 Day Stay)',
-      pricePerPersonUSD: 310000,
-      description:
-        'Tether up, open the airlock, and step into vacuum with Earth spinning beneath your feet.',
-      highlights: ['EMU Spacesuit certified', '360 Helmet 8K Recording', 'Certified EVA Patch'],
-      icon: '🧑‍🚀',
-      availability: 'High Demand',
-    },
-    {
-      id: 'srv-iss-2',
-      destinationId: 'iss',
-      title: 'Zero-G Astronaut Flight School',
-      category: 'training',
-      duration: '5 Days',
-      pricePerPersonUSD: 120000,
-      description:
-        'Complete official orbital flight maneuvers, emergency airlock drills, and microgravity acrobatics.',
-      highlights: ['Official Wings Badge', 'Centrifuge flight prep', 'Personalized flight manual'],
-      icon: '🎓',
-      availability: 'Available',
-    },
-    {
-      id: 'srv-iss-3',
-      destinationId: 'iss',
-      title: 'Cupola Earth Viewing Lounge Stay',
-      category: 'hotel',
-      duration: '4 Days',
-      pricePerPersonUSD: 195000,
-      description:
-        'Relax in the world-famous 7-window cupola module as Earth rotates under orbital sunlight.',
-      highlights: ['16 Sunrises per day', 'Zero-g espresso bar', 'Astronaut meet-and-greet'],
-      icon: '🌍',
-      availability: 'Available',
-    },
-    {
-      id: 'srv-titan-1',
-      destinationId: 'titan',
-      title: 'Atmospheric Wingsuit Gliding Flight',
-      category: 'expedition',
-      duration: '6 Days',
-      pricePerPersonUSD: 520000,
-      description:
-        'Titan’s thick atmosphere and low gravity mean human arms with wings can fly like a bird!',
-      highlights: ['Custom wing-rig', 'Methane cloud soaring', 'Safety drone tether'],
-      icon: '🦅',
-      availability: 'High Demand',
-    },
-    {
-      id: 'srv-titan-2',
-      destinationId: 'titan',
-      title: 'Kraken Mare Liquid Methane Yacht Cruise',
-      category: 'hotel',
-      duration: '8 Days',
-      pricePerPersonUSD: 780000,
-      description:
-        'Sail across Titan’s vast liquid hydrocarbon ocean aboard an insulated luxury hover-yacht.',
-      highlights: ['Sub-zero heated cabin', 'Saturn ring viewing deck', 'Hydrocarbon tasting menu'],
-      icon: '⛵',
-      availability: 'Available',
-    },
-    {
-      id: 'srv-jwst-1',
-      destinationId: 'jwst',
-      title: 'L2 Quantum Telescope Relayer VIP Observation',
-      category: 'satellite',
-      duration: '3 Days Orbital',
-      pricePerPersonUSD: 390000,
-      description:
-        'Dock alongside the James Webb Observatory at Lagrange Point L2 for silent deep-space stargazing.',
-      highlights: ['Infrared telescope access', 'Zero cosmic noise', 'Gold-plated mirror selfie'],
-      icon: '📡',
-      availability: 'Waitlist',
-    },
+    { id: 'srv-mars-1', destinationId: 'mars', title: 'Ares Dome Luxury Hotel & Olympus Base Stay', category: 'hotel', duration: '14 Days (Includes Orbit Transit)', pricePerPersonUSD: 450000, description: 'Stay in pressurized transparent habitat domes overlooking the red Martian desert. Includes gourmet freeze-dried & hydroponic dining.', highlights: ['Olympus Mons view suite', 'Low-g gym', 'Pressurized Rover Tour'], icon: '🏨', availability: 'Available' },
+    { id: 'srv-mars-2', destinationId: 'mars', title: 'Valles Marineris Grand Canyon Expedition', category: 'expedition', duration: '5 Days', pricePerPersonUSD: 180000, description: "Guided multi-day electric rover journey through the solar system's largest canyon system.", highlights: ['Geological core sampling', 'Cliffside observation deck', 'Drone photography'], icon: '🚙', availability: 'High Demand' },
+    { id: 'srv-mars-3', destinationId: 'mars', title: 'Martian Terraforming & Bio-Dome Tech Tour', category: 'training', duration: '3 Days', pricePerPersonUSD: 95000, description: 'Hands-on engineering workshop with top planetary scientists shaping Mars atmosphere.', highlights: ['Algae farm inspection', 'Atmosphere generator controls', 'Certificate'], icon: '🌱', availability: 'Available' },
+    { id: 'srv-moon-1', destinationId: 'moon', title: 'Shackleton Crater South Pole Habitat Stay', category: 'hotel', duration: '7 Days', pricePerPersonUSD: 220000, description: 'Located on the rim of Shackleton Crater with eternal sunlight solar energy and water-ice mining vistas.', highlights: ['Earth-rise viewing lounge', 'Lunar dust sauna', 'Zero-g ice skating'], icon: '🏨', availability: 'Available' },
+    { id: 'srv-moon-2', destinationId: 'moon', title: 'Apollo 11 Historic Site & Buggy Safari', category: 'expedition', duration: '2 Days', pricePerPersonUSD: 85000, description: 'Visit Tranquility Base from a safe historic preservation distance aboard a glass-canopy lunar buggy.', highlights: ['Historic footprint observation', 'Moonwalk photo session', 'Commemorative coin'], icon: '🏎️', availability: 'Available' },
+    { id: 'srv-moon-3', destinationId: 'moon', title: 'Lunar Express Point-to-Point Shuttle', category: 'transport', duration: '3 Days Transit', pricePerPersonUSD: 150000, description: 'Direct rapid transit flight between Earth Orbit and Lunar Gateway with zero-g lounge amenities.', highlights: ['Private capsule seat', 'Starlink Deep Space Wi-Fi', 'Complimentary suit fitting'], icon: '🚀', availability: 'Available' },
+    { id: 'srv-europa-1', destinationId: 'europa', title: 'Cryo-Ocean Submersible Deep Dive', category: 'expedition', duration: '10 Days', pricePerPersonUSD: 890000, description: "Descend into the dark liquid ocean beneath Europa's ice crust inside a titanium sub-surface submersible.", highlights: ['Thermal vent inspection', 'Bioluminescent life scan', 'Jupiter skyline view'], icon: '🌊', availability: 'Waitlist' },
+    { id: 'srv-europa-2', destinationId: 'europa', title: 'Jovian Horizon Sky Suite & Ice Spa', category: 'hotel', duration: '12 Days', pricePerPersonUSD: 640000, description: "Watch Jupiter's Great Red Spot float across the sky from a heated orbital glass habitat station.", highlights: ['Jupiter radiation shield room', 'Cryo-massage spa', 'Deep space dining'], icon: '✨', availability: 'High Demand' },
+    { id: 'srv-iss-1', destinationId: 'iss', title: 'Microgravity Spacewalk EVA Experience', category: 'satellite', duration: '4 Hours Active EVA (3 Day Stay)', pricePerPersonUSD: 310000, description: 'Tether up, open the airlock, and step into vacuum with Earth spinning beneath your feet.', highlights: ['EMU Spacesuit certified', '360 Helmet 8K Recording', 'Certified EVA Patch'], icon: '🧑‍🚀', availability: 'High Demand' },
+    { id: 'srv-iss-2', destinationId: 'iss', title: 'Zero-G Astronaut Flight School', category: 'training', duration: '5 Days', pricePerPersonUSD: 120000, description: 'Complete official orbital flight maneuvers, emergency airlock drills, and microgravity acrobatics.', highlights: ['Official Wings Badge', 'Centrifuge flight prep', 'Personalized flight manual'], icon: '🎓', availability: 'Available' },
+    { id: 'srv-iss-3', destinationId: 'iss', title: 'Cupola Earth Viewing Lounge Stay', category: 'hotel', duration: '4 Days', pricePerPersonUSD: 195000, description: 'Relax in the world-famous 7-window cupola module as Earth rotates under orbital sunlight.', highlights: ['16 Sunrises per day', 'Zero-g espresso bar', 'Astronaut meet-and-greet'], icon: '🌍', availability: 'Available' },
+    { id: 'srv-titan-1', destinationId: 'titan', title: 'Atmospheric Wingsuit Gliding Flight', category: 'expedition', duration: '6 Days', pricePerPersonUSD: 520000, description: "Titan's thick atmosphere and low gravity mean human arms with wings can fly like a bird!", highlights: ['Custom wing-rig', 'Methane cloud soaring', 'Safety drone tether'], icon: '🦅', availability: 'High Demand' },
+    { id: 'srv-titan-2', destinationId: 'titan', title: 'Kraken Mare Liquid Methane Yacht Cruise', category: 'hotel', duration: '8 Days', pricePerPersonUSD: 780000, description: "Sail across Titan's vast liquid hydrocarbon ocean aboard an insulated luxury hover-yacht.", highlights: ['Sub-zero heated cabin', 'Saturn ring viewing deck', 'Hydrocarbon tasting menu'], icon: '⛵', availability: 'Available' },
+    { id: 'srv-jwst-1', destinationId: 'jwst', title: 'L2 Quantum Telescope Relayer VIP Observation', category: 'satellite', duration: '3 Days Orbital', pricePerPersonUSD: 390000, description: 'Dock alongside the James Webb Observatory at Lagrange Point L2 for silent deep-space stargazing.', highlights: ['Infrared telescope access', 'Zero cosmic noise', 'Gold-plated mirror selfie'], icon: '📡', availability: 'Waitlist' },
   ];
 
   const LAUNCH_VEHICLES = [
-    {
-      id: 'lv-starship',
-      name: 'SpaceX Starship Super Heavy Mk-IV',
-      provider: 'SpaceX Interplanetary',
-      payloadCapacity: '150 Tons',
-      transitTime: 'Optimized Rapid Trajectory',
-      priceMultiplier: 1.0,
-    },
-    {
-      id: 'lv-newglenn',
-      name: 'Blue Origin New Glenn Orbital',
-      provider: 'Blue Origin Orbital Systems',
-      payloadCapacity: '45 Tons',
-      transitTime: 'Standard Orbital Transfer',
-      priceMultiplier: 1.15,
-    },
-    {
-      id: 'lv-orion',
-      name: 'Orion SLS Deep Space Capsule',
-      provider: 'NASA / Lockheed Martin',
-      payloadCapacity: '27 Tons',
-      transitTime: 'High-Velocity Direct Injection',
-      priceMultiplier: 1.3,
-    },
+    { id: 'lv-starship', name: 'SpaceX Starship Super Heavy Mk-IV', provider: 'SpaceX Interplanetary', payloadCapacity: '150 Tons', transitTime: 'Optimized Rapid Trajectory', priceMultiplier: 1.0 },
+    { id: 'lv-newglenn', name: 'Blue Origin New Glenn Orbital', provider: 'Blue Origin Orbital Systems', payloadCapacity: '45 Tons', transitTime: 'Standard Orbital Transfer', priceMultiplier: 1.15 },
+    { id: 'lv-orion', name: 'Orion SLS Deep Space Capsule', provider: 'NASA / Lockheed Martin', payloadCapacity: '27 Tons', transitTime: 'High-Velocity Direct Injection', priceMultiplier: 1.3 },
   ];
 
   const SPACEPORTS = [
@@ -354,7 +161,7 @@
     { id: 'add-quantum', name: 'Quantum Comms Pass (Unlimited Starlink L2)', priceUSD: 4500, description: 'High-speed sub-millisecond video calling back to Earth.' },
   ];
 
-  // Sound Synth Engine
+  // little sound effects thing, nothing fancy - just beeps and a warp whoosh
   class SoundFX {
     constructor() {
       this.audioCtx = null;
@@ -362,10 +169,9 @@
     }
 
     initCtx() {
-      if (!this.audioCtx && typeof window !== 'undefined') {
-        const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioCtxClass) this.audioCtx = new AudioCtxClass();
-      }
+      if (this.audioCtx || typeof window === 'undefined') return;
+      const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtxClass) this.audioCtx = new AudioCtxClass();
     }
 
     toggleSound() {
@@ -373,7 +179,9 @@
       return this.enabled;
     }
 
-    playBeep(freq = 800, durationMs = 80) {
+    playBeep(freq, durationMs) {
+      freq = freq || 800;
+      durationMs = durationMs || 80;
       if (!this.enabled) return;
       this.initCtx();
       if (!this.audioCtx) return;
@@ -388,7 +196,9 @@
         gain.connect(this.audioCtx.destination);
         osc.start();
         osc.stop(this.audioCtx.currentTime + durationMs / 1000);
-      } catch (e) {}
+      } catch (e) {
+        // audio context can throw on some mobile browsers if not user-triggered, just ignore
+      }
     }
 
     playWarp() {
@@ -411,7 +221,8 @@
     }
   }
 
-  // Orbit Canvas Simulator
+  // draws the little orbit map with the sun in the middle + planets going around it.
+  // basically a fake solar system, distances/speeds are NOT to scale, just made them look nice
   class PlanetViewer {
     constructor(canvasId, bodies, onSelect) {
       this.canvas = document.getElementById(canvasId);
@@ -487,6 +298,7 @@
       for (const body of this.bodies) {
         const angle = this.angles.get(body.id) || 0;
         const bodyX = centerX + Math.cos(angle) * body.orbitDistance;
+        // 0.45 flattens the circle into more of an ellipse so it reads as "orbit" from this angle
         const bodyY = centerY + Math.sin(angle) * (body.orbitDistance * 0.45);
         if (Math.hypot(x - bodyX, y - bodyY) <= body.radius + 10) return body;
       }
@@ -519,6 +331,7 @@
         if (s.brightness > 1 || s.brightness < 0.2) s.twinkleSpeed = -s.twinkleSpeed;
       });
 
+      // spawn a meteor every once in a while, cap it at 3 on screen so it doesn't get silly
       if (Math.random() < 0.02 && this.meteors.length < 3) {
         this.meteors.push({
           x: Math.random() * this.canvas.width * 0.8,
@@ -543,7 +356,7 @@
       const h = this.canvas.height;
       this.ctx.clearRect(0, 0, w, h);
 
-      // Deep Space Grad
+      // background
       const bgGrad = this.ctx.createRadialGradient(w / 2, h / 2, 50, w / 2, h / 2, Math.max(w, h) / 1.2);
       bgGrad.addColorStop(0, '#0a0d1e');
       bgGrad.addColorStop(0.5, '#050714');
@@ -551,7 +364,6 @@
       this.ctx.fillStyle = bgGrad;
       this.ctx.fillRect(0, 0, w, h);
 
-      // Stars
       this.stars.forEach((s) => {
         this.ctx.fillStyle = `rgba(255, 255, 255, ${s.brightness})`;
         this.ctx.beginPath();
@@ -559,7 +371,6 @@
         this.ctx.fill();
       });
 
-      // Meteors
       this.meteors.forEach((m) => {
         const tx = m.x - Math.cos(m.angle) * m.length;
         const ty = m.y - Math.sin(m.angle) * m.length;
@@ -577,7 +388,7 @@
       const cx = w / 2;
       const cy = h / 2;
 
-      // Central Sun
+      // sun in the middle
       const sunGrad = this.ctx.createRadialGradient(cx, cy, 5, cx, cy, 35);
       sunGrad.addColorStop(0, '#ffffff');
       sunGrad.addColorStop(0.4, '#00f0ff');
@@ -597,7 +408,6 @@
       this.ctx.textBaseline = 'middle';
       this.ctx.fillText('SOL', cx, cy);
 
-      // Orbits & Planets
       this.bodies.forEach((body) => {
         const angle = this.angles.get(body.id) || 0;
         const bx = cx + Math.cos(angle) * body.orbitDistance;
@@ -605,7 +415,7 @@
         const isSel = this.selectedBodyId === body.id;
         const isHov = this.hoveredBodyId === body.id;
 
-        // Path
+        // orbit path
         this.ctx.strokeStyle = isSel ? 'rgba(0, 240, 255, 0.4)' : isHov ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255, 255, 255, 0.08)';
         this.ctx.lineWidth = isSel ? 2 : 1;
         this.ctx.setLineDash(body.category === 'satellite' ? [4, 4] : []);
@@ -614,7 +424,7 @@
         this.ctx.stroke();
         this.ctx.setLineDash([]);
 
-        // Glow
+        // glow behind the planet
         const aura = body.radius * (isSel ? 2.5 : isHov ? 2.0 : 1.5);
         const glow = this.ctx.createRadialGradient(bx, by, body.radius * 0.5, bx, by, aura);
         glow.addColorStop(0, body.color);
@@ -624,13 +434,12 @@
         this.ctx.arc(bx, by, aura, 0, Math.PI * 2);
         this.ctx.fill();
 
-        // Core
         this.ctx.fillStyle = body.color;
         this.ctx.beginPath();
         this.ctx.arc(bx, by, body.radius, 0, Math.PI * 2);
         this.ctx.fill();
 
-        // Shadow 3D feel
+        // cheap fake-3D shading so it doesn't look like a flat circle
         const sh = this.ctx.createRadialGradient(bx - body.radius * 0.4, by - body.radius * 0.4, body.radius * 0.1, bx + body.radius * 0.3, by + body.radius * 0.3, body.radius * 1.2);
         sh.addColorStop(0, 'rgba(255,255,255,0.4)');
         sh.addColorStop(0.5, 'rgba(0,0,0,0.1)');
@@ -640,7 +449,6 @@
         this.ctx.arc(bx, by, body.radius, 0, Math.PI * 2);
         this.ctx.fill();
 
-        // HUD Rings
         if (isSel || isHov) {
           this.ctx.strokeStyle = isSel ? '#00f0ff' : '#7000ff';
           this.ctx.lineWidth = 2;
@@ -649,7 +457,6 @@
           this.ctx.stroke();
         }
 
-        // Label
         this.ctx.fillStyle = isSel ? '#00f0ff' : '#ffffff';
         this.ctx.font = isSel ? 'bold 12px Inter, sans-serif' : '11px Inter, sans-serif';
         this.ctx.textAlign = 'center';
@@ -662,7 +469,6 @@
     }
   }
 
-  // App Controller
   class BookFromSpaceApp {
     constructor() {
       this.soundFX = new SoundFX();
@@ -699,6 +505,7 @@
       try {
         return JSON.parse(localStorage.getItem('bookfromspace_reservations') || '[]');
       } catch (e) {
+        console.warn('could not read saved reservations, starting fresh', e);
         return [];
       }
     }
@@ -706,7 +513,9 @@
     saveReservations() {
       try {
         localStorage.setItem('bookfromspace_reservations', JSON.stringify(this.reservations));
-      } catch (e) {}
+      } catch (e) {
+        console.warn('failed to save reservations to localStorage', e);
+      }
     }
 
     onSelectPlanet(body) {
@@ -748,26 +557,27 @@
     }
 
     renderTelemetry() {
+      // this is all fake/decorative for now, just makes the header feel alive
       const bar = document.getElementById('telemetryBar');
-      if (bar) {
-        bar.innerHTML = `
-          <div class="t-item"><span class="t-dot dot-green"></span> Solar Flares: <strong>Low</strong></div>
-          <div class="t-item"><span class="t-dot dot-blue"></span> Geomagnetic Shield: <strong>94%</strong></div>
-          <div class="t-item"><span class="t-dot dot-cyan"></span> Radiation Index: <strong>18 mSv</strong></div>
-          <div class="t-item"><span class="t-dot dot-green"></span> Micrometeorite Risk: <strong>Minimal</strong></div>
-          <div class="t-item"><span class="t-dot dot-purple"></span> Quantum Relay: <strong>Optimal</strong></div>
-        `;
-      }
+      if (!bar) return;
+      bar.innerHTML = `
+        <div class="t-item"><span class="t-dot dot-green"></span> Solar Flares: <strong>Low</strong></div>
+        <div class="t-item"><span class="t-dot dot-blue"></span> Geomagnetic Shield: <strong>94%</strong></div>
+        <div class="t-item"><span class="t-dot dot-cyan"></span> Radiation Index: <strong>18 mSv</strong></div>
+        <div class="t-item"><span class="t-dot dot-green"></span> Micrometeorite Risk: <strong>Minimal</strong></div>
+        <div class="t-item"><span class="t-dot dot-purple"></span> Quantum Relay: <strong>Optimal</strong></div>
+      `;
     }
 
     renderServices() {
       const grid = document.getElementById('servicesGrid');
       if (!grid) return;
 
+      const q = this.searchQuery.toLowerCase();
       const filtered = SERVICES.filter((s) => {
         const mDest = this.selectedDest === 'all' || s.destinationId === this.selectedDest;
         const mCat = this.selectedCat === 'all' || s.category === this.selectedCat;
-        const mQ = !this.searchQuery || s.title.toLowerCase().includes(this.searchQuery.toLowerCase()) || s.description.toLowerCase().includes(this.searchQuery.toLowerCase());
+        const mQ = !q || s.title.toLowerCase().includes(q) || s.description.toLowerCase().includes(q);
         return mDest && mCat && mQ;
       });
 
@@ -817,8 +627,11 @@
         pill.addEventListener('click', (e) => {
           const dest = e.currentTarget.getAttribute('data-dest');
           this.selectedDest = dest;
-          if (dest !== 'all') this.planetViewer.selectBody(dest);
-          else this.renderServices();
+          if (dest !== 'all') {
+            this.planetViewer.selectBody(dest);
+          } else {
+            this.renderServices();
+          }
         });
       });
 
@@ -842,6 +655,7 @@
           const book = document.getElementById('bookingsView');
           const vrView = document.getElementById('vrTourView');
 
+          // just toggling display:block/none between the three main views
           if (view === 'explore') {
             if (exp) exp.style.display = 'block';
             if (book) book.style.display = 'none';
@@ -859,7 +673,6 @@
         });
       });
 
-      // VR Modal Launchers
       document.getElementById('btnOpenVrModal')?.addEventListener('click', () => {
         const modal = document.getElementById('vrModal');
         if (modal) modal.style.display = 'flex';
@@ -881,7 +694,8 @@
         this.openBookingModal('srv-iss-1');
       });
 
-      // Craft & Gear Selector Buttons Handler
+      // spec sheet data for each craft/gear model in the VR viewer - could move this out
+      // to its own JSON file later but it's small enough to leave inline for now
       const CRAFT_SPECS = {
         'Space Shuttle VR': {
           badge: 'ORBITAL SHUTTLE TRANSPORT VR',
@@ -959,6 +773,8 @@
             if (stageSketchfab) stageSketchfab.style.display = 'none';
           } else if (modelType === 'sketchfab') {
             if (stageSketchfab) {
+              // ui_watermark=0 doesn't actually remove the watermark on free accounts btw,
+              // leaving it here anyway in case we upgrade the sketchfab plan later
               stageSketchfab.setAttribute(
                 'src',
                 `https://sketchfab.com/models/${src}/embed?autostart=1&preload=1&ui_controls=1&ui_infos=0&ui_inspector=0&ui_stop=0&ui_watermark=0&ui_theme=dark`
@@ -968,7 +784,6 @@
             if (stageGlb) stageGlb.style.display = 'none';
           }
 
-          // Update Spec Card
           const specData = CRAFT_SPECS[name];
           if (specData) {
             if (specBadge) specBadge.textContent = specData.badge;
@@ -1031,6 +846,7 @@
       if (!svc) return 0;
 
       let base = svc.pricePerPersonUSD;
+      // pricing multipliers, tweak these once finance actually decides on real numbers
       if (this.formData.travelClass === 'Specialist') base *= 1.35;
       if (this.formData.travelClass === 'VIP Zero-G') base *= 2.1;
       if (vehicle) base *= vehicle.priceMultiplier;
@@ -1061,6 +877,8 @@
         dot.classList.toggle('completed', idx + 1 < this.currentStep);
       });
 
+      // yeah this switch is a bit long, could split into separate render methods
+      // per step but honestly it's easier to follow the wizard flow keeping it together
       switch (this.currentStep) {
         case 1:
           if (stepTitle) stepTitle.textContent = 'Step 1: Select Destination & Service Package';
@@ -1173,7 +991,7 @@
           document.getElementById('wizDepDate')?.addEventListener('change', (e) => (this.formData.departureDate = e.target.value));
           document.getElementById('wizRetDate')?.addEventListener('change', (e) => (this.formData.returnDate = e.target.value));
           document.getElementById('wizPassCount')?.addEventListener('change', (e) => {
-            this.formData.passengers = parseInt(e.target.value) || 1;
+            this.formData.passengers = parseInt(e.target.value, 10) || 1;
             this.renderWizardStep();
           });
           document.getElementById('wizName')?.addEventListener('input', (e) => (this.formData.passengerName = e.target.value));
@@ -1224,30 +1042,33 @@
         this.currentStep++;
         this.soundFX.playBeep(600, 50);
         this.renderWizardStep();
-      } else {
-        const total = this.calculateTotalCost();
-        const bookingCode = `BFS-${Math.random().toString(36).substring(2, 7).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
-
-        const reservation = {
-          ...this.formData,
-          id: `res-${Date.now()}`,
-          passengerName: this.formData.passengerName || 'Space Traveler',
-          passengerEmail: this.formData.passengerEmail || 'traveler@space.orbit',
-          bookingCode,
-          createdAt: new Date().toISOString(),
-          totalCostUSD: total,
-          status: 'Confirmed',
-          seatNumber: `${Math.floor(Math.random() * 20 + 1)}${['A', 'B', 'C', 'D'][Math.floor(Math.random() * 4)]}`,
-          gateCode: `PAD-${Math.floor(Math.random() * 9 + 1)}B`,
-        };
-
-        this.reservations.unshift(reservation);
-        this.saveReservations();
-        this.soundFX.playWarp();
-        this.closeBookingModal();
-        this.showBoardingPassModal(reservation);
-        this.renderReservations();
+        return;
       }
+
+      // final step - lock in the booking
+      const total = this.calculateTotalCost();
+      const bookingCode = `BFS-${Math.random().toString(36).substring(2, 7).toUpperCase()}-${Math.floor(100 + Math.random() * 900)}`;
+
+      const reservation = {
+        ...this.formData,
+        id: `res-${Date.now()}`,
+        passengerName: this.formData.passengerName || 'Space Traveler',
+        passengerEmail: this.formData.passengerEmail || 'traveler@space.orbit',
+        bookingCode,
+        createdAt: new Date().toISOString(),
+        totalCostUSD: total,
+        status: 'Confirmed',
+        // random seat/gate for now - would come from an actual manifest system eventually
+        seatNumber: `${Math.floor(Math.random() * 20 + 1)}${['A', 'B', 'C', 'D'][Math.floor(Math.random() * 4)]}`,
+        gateCode: `PAD-${Math.floor(Math.random() * 9 + 1)}B`,
+      };
+
+      this.reservations.unshift(reservation);
+      this.saveReservations();
+      this.soundFX.playWarp();
+      this.closeBookingModal();
+      this.showBoardingPassModal(reservation);
+      this.renderReservations();
     }
 
     showBoardingPassModal(res) {
@@ -1358,13 +1179,13 @@
       container.querySelectorAll('.btn-cancel-res').forEach((btn) => {
         btn.addEventListener('click', (e) => {
           const id = e.currentTarget.getAttribute('data-id');
-          if (id && confirm('Are you sure you want to cancel this space reservation?')) {
-            const idx = this.reservations.findIndex((r) => r.id === id);
-            if (idx !== -1) {
-              this.reservations[idx].status = 'Cancelled';
-              this.saveReservations();
-              this.renderReservations();
-            }
+          if (!id) return;
+          if (!confirm('Are you sure you want to cancel this space reservation?')) return;
+          const idx = this.reservations.findIndex((r) => r.id === id);
+          if (idx !== -1) {
+            this.reservations[idx].status = 'Cancelled';
+            this.saveReservations();
+            this.renderReservations();
           }
         });
       });

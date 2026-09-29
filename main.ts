@@ -30,7 +30,7 @@ const CELESTIAL_BODIES: CelestialBody[] = [
     orbitDistance: 170,
     orbitSpeed: 0.003,
     servicesCount: 3,
-    featuredImgSymbol: '🔴',
+    featuredImgSymbol: '',
   },
   {
     id: 'moon',
@@ -50,7 +50,7 @@ const CELESTIAL_BODIES: CelestialBody[] = [
     orbitDistance: 110,
     orbitSpeed: 0.006,
     servicesCount: 3,
-    featuredImgSymbol: '🌕',
+    featuredImgSymbol: '',
   },
   {
     id: 'europa',
@@ -70,7 +70,7 @@ const CELESTIAL_BODIES: CelestialBody[] = [
     orbitDistance: 240,
     orbitSpeed: 0.002,
     servicesCount: 2,
-    featuredImgSymbol: '🧊',
+    featuredImgSymbol: '',
   },
   {
     id: 'iss',
@@ -90,7 +90,7 @@ const CELESTIAL_BODIES: CelestialBody[] = [
     orbitDistance: 70,
     orbitSpeed: 0.012,
     servicesCount: 3,
-    featuredImgSymbol: '🛰️',
+    featuredImgSymbol: '',
   },
   {
     id: 'titan',
@@ -110,7 +110,7 @@ const CELESTIAL_BODIES: CelestialBody[] = [
     orbitDistance: 310,
     orbitSpeed: 0.0015,
     servicesCount: 2,
-    featuredImgSymbol: '🪐',
+    featuredImgSymbol: '',
   },
   {
     id: 'jwst',
@@ -130,7 +130,7 @@ const CELESTIAL_BODIES: CelestialBody[] = [
     orbitDistance: 370,
     orbitSpeed: 0.001,
     servicesCount: 1,
-    featuredImgSymbol: '🔭',
+    featuredImgSymbol: '',
   },
 ];
 
@@ -146,7 +146,7 @@ const SERVICES: SpaceService[] = [
     description:
       'Stay in pressurized transparent habitat domes overlooking the red Martian desert. Includes gourmet freeze-dried & hydroponic dining.',
     highlights: ['Olympus Mons view suite', 'Low-g gym', 'Pressurized Rover Tour'],
-    icon: '🏨',
+    icon: '',
     availability: 'Available',
   },
   {
@@ -159,7 +159,7 @@ const SERVICES: SpaceService[] = [
     description:
       'Guided multi-day electric rover journey through the solar system’s largest canyon system.',
     highlights: ['Geological core sampling', 'Cliffside observation deck', 'Drone photography'],
-    icon: '🚙',
+    icon: '',
     availability: 'High Demand',
   },
   {
@@ -172,7 +172,7 @@ const SERVICES: SpaceService[] = [
     description:
       'Hands-on engineering workshop with top planetary scientists shaping Mars atmosphere.',
     highlights: ['Algae farm inspection', 'Atmosphere generator controls', 'Certificate'],
-    icon: '🌱',
+    icon: '',
     availability: 'Available',
   },
   {
@@ -185,7 +185,7 @@ const SERVICES: SpaceService[] = [
     description:
       'Located on the rim of Shackleton Crater with eternal sunlight solar energy and water-ice mining vistas.',
     highlights: ['Earth-rise viewing lounge', 'Lunar dust sauna', 'Zero-g ice skating'],
-    icon: '🏨',
+    icon: '',
     availability: 'Available',
   },
   {
@@ -198,7 +198,7 @@ const SERVICES: SpaceService[] = [
     description:
       'Visit Tranquility Base from a safe historic preservation distance aboard a glass-canopy lunar buggy.',
     highlights: ['Historic footprint observation', 'Moonwalk photo session', 'Commemorative coin'],
-    icon: '🏎️',
+    icon: '',
     availability: 'Available',
   },
   {
@@ -211,7 +211,7 @@ const SERVICES: SpaceService[] = [
     description:
       'Direct rapid transit flight between Earth Orbit and Lunar Gateway with zero-g lounge amenities.',
     highlights: ['Private capsule seat', 'Starlink Deep Space Wi-Fi', 'Complimentary suit fitting'],
-    icon: '🚀',
+    icon: '',
     availability: 'Available',
   },
   {
@@ -224,7 +224,7 @@ const SERVICES: SpaceService[] = [
     description:
       'Descend into the dark liquid ocean beneath Europa’s ice crust inside a titanium sub-surface submersible.',
     highlights: ['Thermal vent inspection', 'Bioluminescent life scan', 'Jupiter skyline view'],
-    icon: '🌊',
+    icon: '',
     availability: 'Waitlist',
   },
   {
@@ -237,7 +237,7 @@ const SERVICES: SpaceService[] = [
     description:
       'Watch Jupiter’s Great Red Spot float across the sky from a heated orbital glass habitat station.',
     highlights: ['Jupiter radiation shield room', 'Cryo-massage spa', 'Deep space dining'],
-    icon: '✨',
+    icon: '',
     availability: 'High Demand',
   },
   {
@@ -250,7 +250,7 @@ const SERVICES: SpaceService[] = [
     description:
       'Tether up, open the airlock, and step into vacuum with Earth spinning beneath your feet.',
     highlights: ['EMU Spacesuit certified', '360 Helmet 8K Recording', 'Certified EVA Patch'],
-    icon: '🧑‍🚀',
+    icon: '',
     availability: 'High Demand',
   },
   {
@@ -263,7 +263,7 @@ const SERVICES: SpaceService[] = [
     description:
       'Complete official orbital flight maneuvers, emergency airlock drills, and microgravity acrobatics.',
     highlights: ['Official Wings Badge', 'Centrifuge flight prep', 'Personalized flight manual'],
-    icon: '🎓',
+    icon: '',
     availability: 'Available',
   },
   {
@@ -276,7 +276,7 @@ const SERVICES: SpaceService[] = [
     description:
       'Relax in the world-famous 7-window cupola module as Earth rotates under orbital sunlight.',
     highlights: ['16 Sunrises per day', 'Zero-g espresso bar', 'Astronaut meet-and-greet'],
-    icon: '🌍',
+    icon: '',
     availability: 'Available',
   },
   {
@@ -289,7 +289,7 @@ const SERVICES: SpaceService[] = [
     description:
       'Titan’s thick atmosphere and low gravity mean human arms with wings can fly like a bird!',
     highlights: ['Custom wing-rig', 'Methane cloud soaring', 'Safety drone tether'],
-    icon: '🦅',
+    icon: '',
     availability: 'High Demand',
   },
   {
@@ -302,7 +302,7 @@ const SERVICES: SpaceService[] = [
     description:
       'Sail across Titan’s vast liquid hydrocarbon ocean aboard an insulated luxury hover-yacht.',
     highlights: ['Sub-zero heated cabin', 'Saturn ring viewing deck', 'Hydrocarbon tasting menu'],
-    icon: '⛵',
+    icon: '',
     availability: 'Available',
   },
   {
@@ -315,7 +315,7 @@ const SERVICES: SpaceService[] = [
     description:
       'Dock alongside the James Webb Observatory at Lagrange Point L2 for silent deep-space stargazing.',
     highlights: ['Infrared telescope access', 'Zero cosmic noise', 'Gold-plated mirror selfie'],
-    icon: '📡',
+    icon: '',
     availability: 'Waitlist',
   },
 ];
@@ -404,7 +404,7 @@ class BookFromSpaceApp {
     const cardEl = document.getElementById('bodyInfoCard');
     if (cardEl) {
       cardEl.innerHTML = `
-        <div class="hud-card-header" style="border-left-color: ${body.color}">
+        <div class="hud-card-header">
           <div>
             <span class="hud-badge">${body.category.toUpperCase()}</span>
             <h3 style="color: ${body.color}">${body.name}</h3>
@@ -784,7 +784,7 @@ class BookFromSpaceApp {
     if (!stepContainer) return;
 
     if (btnPrev) btnPrev.style.visibility = step === 1 ? 'hidden' : 'visible';
-    if (btnNext) btnNext.textContent = step === 4 ? 'Confirm & Launch Reservation 🚀' : 'Next Step ➔';
+    if (btnNext) btnNext.textContent = step === 4 ? 'Confirm & Launch Reservation' : 'Next Step';
 
     if (totalCostSpan) {
       totalCostSpan.textContent = `$${this.manager.calculateTotalCost().toLocaleString()} USD`;
@@ -1035,7 +1035,7 @@ class BookFromSpaceApp {
               <span class="ticket-badge">CONFIRMED SPACE BOARDING PASS</span>
               <h2>${res.bookingCode}</h2>
             </div>
-            <div class="ticket-logo">🚀 BOOKFORSPACE</div>
+            <div class="ticket-logo">BOOKFORSPACE</div>
           </div>
           
           <div class="ticket-body">
@@ -1046,7 +1046,7 @@ class BookFromSpaceApp {
               </div>
               <div>
                 <span class="lbl">Destination</span>
-                <span class="val" style="color:${body?.color}">${body ? body.name : res.destinationId}</span>
+                <span class="val" style="color: #14171f">${body ? body.name : res.destinationId}</span>
               </div>
               <div>
                 <span class="lbl">Mission Service</span>
@@ -1081,7 +1081,7 @@ class BookFromSpaceApp {
               <div class="qr-info">
                 <p>STATUS: LAUNCH READY</p>
                 <p>SECURITY HASH: 0x${Math.random().toString(16).substring(2, 10).toUpperCase()}</p>
-                <button class="btn btn-outline" id="btnPrintPass">🖨️ Print Ticket</button>
+                <button class="btn btn-outline" id="btnPrintPass">Print Ticket</button>
               </div>
             </div>
           </div>
@@ -1106,7 +1106,7 @@ class BookFromSpaceApp {
     if (list.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <p>🪐 You have no active space flight reservations yet.</p>
+          <p>You have no active space flight reservations yet.</p>
           <button class="btn btn-primary" id="btnExploreFromEmpty">Explore Destinations</button>
         </div>
       `;
@@ -1127,21 +1127,21 @@ class BookFromSpaceApp {
           <div class="res-header">
             <div>
               <span class="res-code">${res.bookingCode}</span>
-              <h4 style="color: ${body ? body.color : '#00f0ff'}">${svc ? svc.title : res.serviceId}</h4>
+              <h4 style="color: #14171f">${svc ? svc.title : res.serviceId}</h4>
             </div>
             <span class="badge ${isCancelled ? 'badge-cancelled' : 'badge-confirmed'}">${res.status}</span>
           </div>
 
           <div class="res-details">
-            <p>📍 <strong>Destination:</strong> ${body ? body.name : res.destinationId}</p>
-            <p>👤 <strong>Passenger:</strong> ${res.passengerName} (${res.passengers} traveler${res.passengers > 1 ? 's' : ''})</p>
-            <p>🗓️ <strong>Flight Window:</strong> ${res.departureDate} ➔ ${res.returnDate}</p>
-            <p>💺 <strong>Seat & Gate:</strong> ${res.travelClass} / Seat ${res.seatNumber} (${res.gateCode})</p>
-            <p>💰 <strong>Total Cost:</strong> $${res.totalCostUSD.toLocaleString()} USD</p>
+            <p><strong>Destination:</strong> ${body ? body.name : res.destinationId}</p>
+            <p><strong>Passenger:</strong> ${res.passengerName} (${res.passengers} traveler${res.passengers > 1 ? 's' : ''})</p>
+            <p><strong>Flight Window:</strong> ${res.departureDate} - ${res.returnDate}</p>
+            <p><strong>Seat & Gate:</strong> ${res.travelClass} / Seat ${res.seatNumber} (${res.gateCode})</p>
+            <p><strong>Total Cost:</strong> $${res.totalCostUSD.toLocaleString()} USD</p>
           </div>
 
           <div class="res-actions">
-            <button class="btn btn-outline btn-view-pass" data-id="${res.id}">🎟️ View Boarding Pass</button>
+            <button class="btn btn-outline btn-view-pass" data-id="${res.id}">View Boarding Pass</button>
             ${
               !isCancelled
                 ? `<button class="btn btn-danger btn-cancel-res" data-id="${res.id}">Abort / Cancel</button>`

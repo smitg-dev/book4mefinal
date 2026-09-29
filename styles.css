@@ -67,7 +67,7 @@ body::before {
 .handnote {
   font-family: var(--font-stamp);
   font-size: 0.78rem;
-  color: var(--rust);
+  color: var(--ink);
   transform: rotate(-3deg);
   margin-right: 6px;
   white-space: nowrap;
@@ -291,8 +291,8 @@ body::before {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  border-left: 4px solid var(--amber);
-  padding-left: 16px;
+  border-left: none;
+  padding-left: 0;
   margin-bottom: 16px;
 }
 
@@ -449,12 +449,15 @@ body::before {
 
 .service-card {
   background: var(--paper-panel);
-  border: 1px solid var(--ink);
-  padding: 28px 26px;
+  border: 2px solid var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: -7px;
+  padding: 30px 28px;
   display: flex;
   flex-direction: column;
   box-shadow: var(--ledger-shadow);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
 }
 
 .service-card:hover {
@@ -476,16 +479,20 @@ body::before {
 
 .badge {
   font-size: 0.68rem;
-  font-family: var(--font-mono);
-  padding: 3px 9px;
-  letter-spacing: 0.5px;
-  border: 1px solid currentColor;
+  font-family: var(--font-stamp);
+  padding: 4px 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 2px 2px 0px rgba(0, 0, 0, 0.12);
 }
 
-.badge-avail.available { background: transparent; color: var(--moss); border-color: var(--moss); transform: rotate(-1.5deg); display: inline-block; }
-.badge-avail.high-demand { background: transparent; color: var(--amber-deep); border-color: var(--amber-deep); transform: rotate(1.5deg); display: inline-block; }
-.badge-avail.waitlist { background: var(--rust); color: var(--paper); border-color: var(--rust); transform: rotate(-2deg); display: inline-block; }
-.badge-dest { background: transparent; color: var(--ink-soft); border: 1px solid var(--ink-faint); }
+.badge-avail.available { background: var(--paper); color: var(--ink); border-color: var(--ink); transform: rotate(-1.5deg); display: inline-block; }
+.badge-avail.high-demand { background: var(--paper-deep); color: var(--ink); border-color: var(--ink); transform: rotate(1.5deg); display: inline-block; }
+.badge-avail.waitlist { background: var(--ink); color: var(--paper); border-color: var(--ink); transform: rotate(-2deg); display: inline-block; }
+.badge-dest { background: transparent; color: var(--ink); border: 1px dashed var(--ink); }
 
 .card-icon {
   font-size: 2.2rem;

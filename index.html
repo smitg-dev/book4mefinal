@@ -3,30 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BookForSpace - Interplanetary Service Booking & Space Environment</title>
+  <title>BookForSpace — Flight Manifest & Mission Booking</title>
   <link rel="stylesheet" href="./styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Press+Start+2P&family=Share+Tech+Mono&family=JetBrains+Mono:wght@500;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <!-- Google Model-Viewer Web Component for Native .GLB 3D / VR / AR Rendering -->
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 </head>
 <body>
-  <!-- Header & Navigation HUD -->
+  <!-- Header & Navigation -->
   <header class="hud-header">
     <div class="container hud-nav-wrapper">
       <div class="brand-logo">
-        <span class="logo-icon">🚀</span>
         <span>BOOKFORSPACE</span>
       </div>
 
       <nav class="nav-tabs">
-        <button class="nav-tab active" data-tab="explore">🪐 Orbit Simulator & Services</button>
-        <button class="nav-tab" data-tab="vr-tour">🚀 3D Spacecraft & Gear Hangar</button>
-        <button class="nav-tab" data-tab="bookings">🎟️ My Space Reservations</button>
+        <button class="nav-tab active" data-tab="explore">Orbit</button>
+        <button class="nav-tab" data-tab="vr-tour">Hangar</button>
+        <button class="nav-tab" data-tab="bookings">Reservations</button>
       </nav>
 
       <div class="nav-controls">
-        <button class="btn btn-primary" id="btnOpenVrModal">🥽 Launch VR Cockpit</button>
-        <button class="btn btn-outline" id="btnToggleSound">🔊 Audio FX: ON</button>
+        <span class="handnote">seats go fast →</span>
+        <button class="btn btn-primary" id="btnLaunchRocket">🚀 Launch Rocket</button>
+        <button class="btn btn-primary" id="btnOpenVrModal">VR Cockpit</button>
+        <button class="btn btn-outline" id="btnToggleSound">Sound: ON</button>
       </div>
     </div>
   </header>
@@ -40,15 +41,15 @@
 
   <!-- Main Container -->
   <main class="container main-layout">
-    
+
     <!-- View 1: Explore Space Environment & Services -->
     <div id="exploreView">
-      
+
       <!-- Planetary & Satellite Orbit Simulator Section -->
       <section class="orbit-section">
         <div class="canvas-header-overlay">
-          <h1>SOL SYSTEM ORBITAL NETWORK</h1>
-          <p>Click or hover over any planet or satellite to inspect telemetry & available services</p>
+          <h1>SOL SYSTEM <del>ORBITAL</del> FLIGHT NETWORK</h1>
+          <p>Hover a body for specs</p>
         </div>
         <canvas id="spaceCanvas"></canvas>
 
@@ -64,8 +65,8 @@
       <section class="services-section">
         <div class="section-header">
           <div class="section-title">
-            <h2>AVAILABLE SPACE MISSIONS & SERVICES</h2>
-            <p>Select your celestial destination, orbital stay, or training experience</p>
+            <h2>AVAILABLE MISSIONS</h2>
+            <p>Pick a destination</p>
           </div>
 
           <div class="filter-bar">
@@ -91,7 +92,7 @@
             </select>
 
             <!-- Search -->
-            <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search mission..." />
+            <input type="text" id="searchInput" class="form-control" placeholder="Search mission..." />
           </div>
         </div>
 
@@ -106,34 +107,29 @@
     <div id="vrTourView" style="display: none;">
       <div class="section-header">
         <div class="section-title">
-          <h2>🚀 TYPES OF SPACECRAFT & GEAR HANGAR</h2>
-          <p>Inspect 3D Spacecrafts, Spacesuit Gear, Cockpits, and Deck Corridors in interactive WebXR 3D</p>
+          <h2>HANGAR</h2>
+          <p>Spin it around, see what you're flying in</p>
         </div>
         <div>
-          <button class="btn btn-primary" id="btnVrBookNow">⚡ Reserve Flight on this Craft</button>
+          <button class="btn btn-primary" id="btnVrBookNow">Reserve This Craft</button>
         </div>
       </div>
 
       <!-- Craft & Suit Type Selector Pills -->
       <div class="craft-selector-bar">
         <button class="craft-btn active" data-model-type="sketchfab" data-src="b0c3acde450a441aa9da6403fd1e13e5" data-name="Space Shuttle VR" data-tag="Orbital Shuttle Transport VR">
-          <span class="craft-icon">🚀</span>
           <span class="craft-label">Space Shuttle VR</span>
         </button>
         <button class="craft-btn" data-model-type="sketchfab" data-src="703d562a20aa43a7960bb9a52018fa80" data-name="ACES US Spacesuit VR" data-tag="NASA ACES Flight Suit VR">
-          <span class="craft-icon">🧑‍🚀</span>
           <span class="craft-label">Advanced Crew Escape Suit VR</span>
         </button>
         <button class="craft-btn" data-model-type="sketchfab" data-src="295987bbb33d4fdb9dd7c4ab9027f8f0" data-name="Sci-Fi Spaceship Interior" data-tag="Command Deck & Cockpit VR">
-          <span class="craft-icon">🛸</span>
           <span class="craft-label">Spaceship Interior VR</span>
         </button>
         <button class="craft-btn" data-model-type="sketchfab" data-src="3f49bfcc4aa64251a2a1778f7ad44a45" data-name="Sci-Fi Spaceship Corridor" data-tag="Airlock & Deck Corridor VR">
-          <span class="craft-icon">🌌</span>
           <span class="craft-label">Spaceship Corridor VR</span>
         </button>
         <button class="craft-btn" data-model-type="glb" data-src="./assets/Space%20Exploration%20Vehicle.glb" data-name="Space Exploration Vehicle" data-tag="Surface & Transit Rover">
-          <span class="craft-icon">🛰️</span>
           <span class="craft-label">Space Exploration Vehicle</span>
         </button>
       </div>
@@ -142,29 +138,29 @@
         <!-- Dynamic 3D Model Stage Container -->
         <div class="vr-iframe-wrapper" id="stageContainer">
           <!-- Sketchfab VR iframe player (Default active for instant visibility) -->
-          <iframe 
+          <iframe
             id="stageSketchfabViewer"
             title="Sketchfab VR 3D Model"
-            src="https://sketchfab.com/models/b0c3acde450a441aa9da6403fd1e13e5/embed?autostart=1&preload=1&ui_controls=1&ui_infos=0&ui_inspector=0&ui_stop=0&ui_watermark=0&ui_theme=dark" 
+            src="https://sketchfab.com/models/b0c3acde450a441aa9da6403fd1e13e5/embed?autostart=1&preload=1&ui_controls=1&ui_infos=0&ui_inspector=0&ui_stop=0&ui_watermark=0&ui_theme=dark"
             allow="autoplay; fullscreen; xr-spatial-tracking; execution-while-out-of-viewport; execution-while-not-rendered; web-share"
             style="width: 100%; height: 100%; border: none; display: block;"
             allowfullscreen>
           </iframe>
 
           <!-- Google model-viewer WebGL 3D player -->
-          <model-viewer 
-            id="stageGlbViewer" 
-            src="./assets/Space%20Exploration%20Vehicle.glb" 
-            alt="Space Exploration Vehicle 3D Model" 
-            camera-controls 
-            auto-rotate 
-            ar 
-            ar-modes="webxr scene-viewer quick-look" 
-            shadow-intensity="1.5" 
-            environment-image="neutral" 
+          <model-viewer
+            id="stageGlbViewer"
+            src="./assets/Space%20Exploration%20Vehicle.glb"
+            alt="Space Exploration Vehicle 3D Model"
+            camera-controls
+            auto-rotate
+            ar
+            ar-modes="webxr scene-viewer quick-look"
+            shadow-intensity="1.5"
+            environment-image="neutral"
             exposure="1.2"
             interaction-prompt="auto"
-            style="width: 100%; height: 100%; background: radial-gradient(circle at center, #0a1128 0%, #03050e 100%); display: none;">
+            style="width: 100%; height: 100%; background: radial-gradient(circle at center, #DED0A4 0%, #ECE3C6 100%); display: none;">
           </model-viewer>
         </div>
 
@@ -188,8 +184,8 @@
     <div id="bookingsView" style="display: none;">
       <div class="section-header">
         <div class="section-title">
-          <h2>MY SPACE FLIGHT RESERVATIONS</h2>
-          <p>Manage your upcoming launch passes, flight specs, and boarding passes</p>
+          <h2>MY RESERVATIONS</h2>
+          <p>Your upcoming launches</p>
         </div>
       </div>
       <div id="reservationsList">
@@ -203,20 +199,20 @@
   <div class="modal-overlay" id="vrModal">
     <div class="modal-card vr-modal-card">
       <div class="modal-header">
-        <h3>🥽 3D VR SPACESHIP COCKPIT & CABIN</h3>
+        <h3>3D VR SPACESHIP COCKPIT & CABIN</h3>
         <button class="modal-close" id="vrModalClose">&times;</button>
       </div>
       <div class="modal-body vr-modal-body">
-        <iframe 
+        <iframe
           title="VR Spaceship Interior Modal 3D Model"
-          src="https://sketchfab.com/models/295987bbb33d4fdb9dd7c4ab9027f8f0/embed?autostart=1&preload=1&ui_controls=1&ui_infos=0&ui_inspector=0&ui_stop=0&ui_watermark=0&ui_theme=dark" 
+          src="https://sketchfab.com/models/295987bbb33d4fdb9dd7c4ab9027f8f0/embed?autostart=1&preload=1&ui_controls=1&ui_infos=0&ui_inspector=0&ui_stop=0&ui_watermark=0&ui_theme=dark"
           allow="autoplay; fullscreen; xr-spatial-tracking; execution-while-out-of-viewport; execution-while-not-rendered; web-share"
           allowfullscreen>
         </iframe>
       </div>
       <div class="modal-footer">
-        <span class="cost-summary">Use mouse/touch to rotate, pan & zoom 3D VR scene. Click VR headset icon inside viewer for WebXR VR mode.</span>
-        <button class="btn btn-primary" id="btnVrModalBook">⚡ Reserve Seat Now</button>
+        <span class="cost-summary">Drag to look around.</span>
+        <button class="btn btn-primary" id="btnVrModalBook">Reserve Seat</button>
       </div>
     </div>
   </div>
@@ -242,7 +238,7 @@
 
       <div class="modal-footer">
         <div class="cost-summary">
-          <span>Est. Total Investment:</span>
+          <span>Total:</span>
           <span id="wizardTotalCost">$0 USD</span>
         </div>
 
@@ -254,7 +250,7 @@
     </div>
   </div>
 
-  <!-- Sci-Fi Boarding Pass Ticket Modal -->
+  <!-- Boarding Pass Ticket Modal -->
   <div class="modal-overlay" id="ticketModal">
     <div class="modal-card ticket-card" style="max-width: 620px;">
       <div class="modal-header">
@@ -264,6 +260,15 @@
       <div class="modal-body" id="ticketModalContent">
         <!-- Ticket content injected dynamically -->
       </div>
+    </div>
+  </div>
+
+  <!-- Rocket Launch Animation Overlay Canvas -->
+  <div class="rocket-launch-overlay" id="rocketLaunchOverlay">
+    <canvas id="rocketCanvas"></canvas>
+    <div class="rocket-hud-status" id="rocketHudStatus">
+      <div class="launch-title">MISSION LAUNCH SEQUENCE</div>
+      <div class="launch-sub" id="launchSubText">ENGINES IGNITED — SMOKE BLAST ACTIVE</div>
     </div>
   </div>
 

@@ -662,10 +662,261 @@
     }
   }
 
+  // Rocket Engine Canvas Particle Launch System
+  class RocketLaunchEngine {
+    constructor() {
+      this.overlay = document.getElementById('rocketLaunchOverlay');
+      this.canvas = document.getElementById('rocketCanvas');
+      this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
+      this.statusText = document.getElementById('launchSubText');
+      this.isRunning = false;
+      this.animId = null;
+      this.particles = [];
+      this.rocket = { x: 0, y: 0, vy: 0, width: 32, height: 90, shake: 0 };
+
+      if (this.canvas) {
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+      }
+    }
+
+    resize() {
+      if (!this.canvas) return;
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+    }
+
+    triggerLaunch(onComplete) {
+      if (this.isRunning || !this.ctx) return;
+      this.isRunning = true;
+      this.particles = [];
+      this.resize();
+
+      const w = this.canvas.width;
+      const h = this.canvas.height;
+
+      this.rocket.x = w / 2;
+      this.rocket.y = h - 140;
+      this.rocket.vy = 0;
+      this.rocket.shake = 8;
+
+      if (this.overlay) {
+        this.overlay.style.display = 'block';
+        setTimeout(() => this.overlay.classList.add('active'), 10);
+      }
+
+      const startTime = performance.now();
+      const duration = 3200;
+
+      const animate = (now) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        this.ctx.clearRect(0, 0, w, h);
+
+        if (progress < 0.2) {
+          this.rocket.shake = (1 - progress / 0.2) * 6;
+          if (this.statusText) this.statusText.textContent = '🔥 ENGINE IGNITION — SMOKE BLAST BURST';
+        } else {
+          this.rocket.shake = Math.random() * 2;
+          this.rocket.vy += 0.48;
+          this.rocket.y -= this.rocket.vy;
+          if (this.statusText) this.statusText.textContent = `🚀 ASCENDING INTO SPACE — ALTITUDE: ${Math.floor(progress * 250)} KM`;
+        }
+
+        const rx = this.rocket.x + (Math.random() - 0.5) * this.rocket.shake;
+        const ry = this.rocket.y + this.rocket.height / 2;
+
+        if (this.rocket.y + this.rocket.height > -120) {
+          // Flame particles at exhaust tip
+          for (let i = 0; i < 6; i++) {
+            this.particles.push({
+              type: 'fire',
+              x: rx + (Math.random() - 0.5) * 14,
+              y: ry + Math.random() * 8,
+              vx: (Math.random() - 0.5) * 3,
+              vy: Math.random() * 6 + 4 + this.rocket.vy * 0.2,
+              radius: Math.random() * 8 + 6,
+              alpha: 1,
+              color: Math.random() > 0.3 ? '#ff6600' : '#ffcc00',
+              decay: Math.random() * 0.05 + 0.03,
+            });
+          }
+
+          // Dense billowing Smoke particles appearing at end of rocket
+          for (let i = 0; i < 6; i++) {
+            this.particles.push({
+              type: 'smoke',
+              x: rx + (Math.random() - 0.5) * 18,
+              y: ry + Math.random() * 12,
+              vx: (Math.random() - 0.5) * 4.5,
+              vy: Math.random() * 3 + 2,
+              radius: Math.random() * 14 + 10,
+              maxRadius: Math.random() * 50 + 30,
+              alpha: 0.85,
+              color: Math.random() > 0.5 ? '#d0d5dd' : '#98a2b3',
+              decay: Math.random() * 0.012 + 0.008,
+            });
+          }
+
+          // Glowing sparks
+          for (let i = 0; i < 3; i++) {
+            this.particles.push({
+              type: 'spark',
+              x: rx + (Math.random() - 0.5) * 10,
+              y: ry,
+              vx: (Math.random() - 0.5) * 8,
+              vy: Math.random() * 8 + 6,
+              radius: Math.random() * 2 + 1,
+              alpha: 1,
+              color: '#ffffff',
+              decay: Math.random() * 0.06 + 0.04,
+            });
+          }
+        }
+
+        // Draw and update particle physics
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.alpha -= p.decay;
+
+          if (p.type === 'smoke') {
+            p.radius = Math.min(p.radius + 0.9, p.maxRadius);
+            p.vx *= 0.98;
+          }
+
+          if (p.alpha <= 0) {
+            this.particles.splice(i, 1);
+            continue;
+          }
+
+          this.ctx.save();
+          this.ctx.globalAlpha = Math.max(0, p.alpha);
+          this.ctx.beginPath();
+          this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+
+          if (p.type === 'fire') {
+            const grad = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+            grad.addColorStop(0, '#ffffff');
+            grad.addColorStop(0.4, p.color);
+            grad.addColorStop(1, 'rgba(255,0,0,0)');
+            this.ctx.fillStyle = grad;
+          } else if (p.type === 'smoke') {
+            const grad = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius);
+            grad.addColorStop(0, 'rgba(220,225,235,0.7)');
+            grad.addColorStop(0.5, 'rgba(150,160,175,0.4)');
+            grad.addColorStop(1, 'rgba(80,90,105,0)');
+            this.ctx.fillStyle = grad;
+          } else {
+            this.ctx.fillStyle = p.color;
+          }
+
+          this.ctx.fill();
+          this.ctx.restore();
+        }
+
+        // Render Rocket graphic
+        if (this.rocket.y + this.rocket.height > -60) {
+          this.drawRocket(rx, this.rocket.y);
+        }
+
+        if (progress < 1 || this.particles.length > 0) {
+          this.animId = requestAnimationFrame(animate);
+        } else {
+          this.stop(onComplete);
+        }
+      };
+
+      this.animId = requestAnimationFrame(animate);
+    }
+
+    drawRocket(x, y) {
+      const ctx = this.ctx;
+      ctx.save();
+      ctx.translate(x, y);
+
+      const rw = 26;
+      const rh = 80;
+
+      // Nosecone
+      ctx.beginPath();
+      ctx.moveTo(0, -rh / 2 - 22);
+      ctx.lineTo(rw / 2, -rh / 2);
+      ctx.lineTo(-rw / 2, -rh / 2);
+      ctx.closePath();
+      const noseGrad = ctx.createLinearGradient(-rw / 2, 0, rw / 2, 0);
+      noseGrad.addColorStop(0, '#ff3300');
+      noseGrad.addColorStop(0.5, '#00f0ff');
+      noseGrad.addColorStop(1, '#990000');
+      ctx.fillStyle = noseGrad;
+      ctx.fill();
+
+      // Body Cylinder
+      const bodyGrad = ctx.createLinearGradient(-rw / 2, 0, rw / 2, 0);
+      bodyGrad.addColorStop(0, '#e2e8f0');
+      bodyGrad.addColorStop(0.3, '#ffffff');
+      bodyGrad.addColorStop(0.7, '#cbd5e1');
+      bodyGrad.addColorStop(1, '#64748b');
+      ctx.fillStyle = bodyGrad;
+      ctx.fillRect(-rw / 2, -rh / 2, rw, rh);
+
+      // Windows
+      ctx.fillStyle = '#00f0ff';
+      ctx.shadowColor = '#00f0ff';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(0, -rh / 4, 4, 0, Math.PI * 2);
+      ctx.arc(0, 0, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      // Stripe
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-rw / 2, rh / 4, rw, 6);
+
+      // Fins
+      ctx.fillStyle = '#ff3300';
+      ctx.beginPath();
+      ctx.moveTo(-rw / 2, rh / 4);
+      ctx.lineTo(-rw / 2 - 14, rh / 2 + 6);
+      ctx.lineTo(-rw / 2, rh / 2);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(rw / 2, rh / 4);
+      ctx.lineTo(rw / 2 + 14, rh / 2 + 6);
+      ctx.lineTo(rw / 2, rh / 2);
+      ctx.closePath();
+      ctx.fill();
+
+      // Exhaust Nozzle
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(-rw / 3, rh / 2, rw * 0.66, 8);
+
+      ctx.restore();
+    }
+
+    stop(onComplete) {
+      this.isRunning = false;
+      if (this.animId) cancelAnimationFrame(this.animId);
+      if (this.overlay) {
+        this.overlay.classList.remove('active');
+        setTimeout(() => {
+          this.overlay.style.display = 'none';
+          if (onComplete) onComplete();
+        }, 400);
+      }
+    }
+  }
+
   // App Controller
   class BookFromSpaceApp {
     constructor() {
       this.soundFX = new SoundFX();
+      this.rocketEngine = new RocketLaunchEngine();
       this.selectedDest = 'mars';
       this.selectedCat = 'all';
       this.searchQuery = '';
@@ -693,6 +944,9 @@
       this.renderTelemetry();
       this.renderServices();
       this.renderReservations();
+
+      // Trigger rocket launch animation once when site opens!
+      setTimeout(() => this.rocketEngine.triggerLaunch(), 300);
     }
 
     loadReservations() {
@@ -808,6 +1062,11 @@
     }
 
     bindEvents() {
+      document.getElementById('btnLaunchRocket')?.addEventListener('click', () => {
+        this.rocketEngine.triggerLaunch();
+        this.soundFX.playWarp();
+      });
+
       document.getElementById('btnToggleSound')?.addEventListener('click', (e) => {
         const on = this.soundFX.toggleSound();
         e.currentTarget.textContent = on ? '🔊 Audio FX: ON' : '🔇 Audio FX: OFF';
@@ -1245,8 +1504,10 @@
         this.saveReservations();
         this.soundFX.playWarp();
         this.closeBookingModal();
-        this.showBoardingPassModal(reservation);
-        this.renderReservations();
+        this.rocketEngine.triggerLaunch(() => {
+          this.showBoardingPassModal(reservation);
+          this.renderReservations();
+        });
       }
     }
 

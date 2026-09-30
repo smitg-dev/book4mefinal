@@ -17,6 +17,14 @@ export interface Meteor {
   angle: number;
 }
 
+const STAR_COUNT = 200;
+const ORBIT_TILT = 0.45;
+const HIT_PADDING = 10;
+const MAX_METEORS = 3;
+const METEOR_SPAWN_CHANCE = 0.02;
+const FRAME_MS = 1000 / 60;
+const MAX_FRAME_SCALE = 3;
+
 export class PlanetViewer {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -27,22 +35,63 @@ export class PlanetViewer {
   private selectedBodyId: string | null = null;
   private hoveredBodyId: string | null = null;
   private animationFrameId: number | null = null;
+  private lastFrameTime = 0;
   private onSelectCallback?: (body: CelestialBody) => void;
+
+  private width = 0;
+  private height = 0;
+
+  private handleResize = (): void => {
+    const oldW = this.width;
+    const oldH = this.height;
+    this.initCanvasSize();
+    if (oldW > 0 && oldH > 0) {
+      const sx = this.width / oldW;
+      const sy = this.height / oldH;
+      this.stars.forEach((star) => {
+        star.x *= sx;
+        star.y *= sy;
+      });
+    } else {
+      this.initStarfield();
+    }
+  };
+
+  private handleMouseMove = (e: MouseEvent): void => {
+    const { x, y } = this.toCanvasPoint(e);
+    const hovered = this.getBodyAtPosition(x, y);
+    this.hoveredBodyId = hovered ? hovered.id : null;
+    this.canvas.style.cursor = hovered ? 'pointer' : 'default';
+  };
+
+  private handleMouseLeave = (): void => {
+    this.hoveredBodyId = null;
+    this.canvas.style.cursor = 'default';
+  };
+
+  private handleClick = (e: MouseEvent): void => {
+    const { x, y } = this.toCanvasPoint(e);
+    const clicked = this.getBodyAtPosition(x, y);
+    if (clicked) {
+      this.selectBody(clicked.id);
+    }
+  };
 
   constructor(
     canvasId: string,
     bodies: CelestialBody[],
     onSelect?: (body: CelestialBody) => void
   ) {
-    const el = document.getElementById(canvasId) as HTMLCanvasElement;
+    const el = document.getElementById(canvasId) as HTMLCanvasElement | null;
     if (!el) {
       throw new Error(`Canvas with id ${canvasId} not found`);
     }
-    this.canvas = el;
-    const context = this.canvas.getContext('2d');
+    const context = el.getContext('2d');
     if (!context) {
       throw new Error('Could not acquire 2D canvas context');
     }
+
+    this.canvas = el;
     this.ctx = context;
     this.bodies = bodies;
     this.onSelectCallback = onSelect;
@@ -55,19 +104,26 @@ export class PlanetViewer {
 
   private initCanvasSize(): void {
     const rect = this.canvas.parentElement?.getBoundingClientRect();
-    this.canvas.width = rect ? rect.width : window.innerWidth;
-    this.canvas.height = rect ? rect.height : 600;
+    const dpr = window.devicePixelRatio || 1;
+
+    this.width = rect && rect.width > 0 ? rect.width : window.innerWidth;
+    this.height = rect && rect.height > 0 ? rect.height : 600;
+
+    this.canvas.width = Math.floor(this.width * dpr);
+    this.canvas.height = Math.floor(this.height * dpr);
+    this.canvas.style.width = `${this.width}px`;
+    this.canvas.style.height = `${this.height}px`;
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
   private initStarfield(): void {
     this.stars = [];
-    const starCount = 200;
-    for (let i = 0; i < starCount; i++) {
+    for (let i = 0; i < STAR_COUNT; i++) {
       this.stars.push({
-        x: Math.random() * this.canvas.width,
-        y: Math.random() * this.canvas.height,
+        x: Math.random() * this.width,
+        y: Math.random() * this.height,
         size: Math.random() * 2 + 0.5,
-        brightness: Math.random(),
+        brightness: 0.2 + Math.random() * 0.8,
         twinkleSpeed: (Math.random() - 0.5) * 0.02,
       });
     }
@@ -75,73 +131,66 @@ export class PlanetViewer {
 
   private initAngles(): void {
     this.bodies.forEach((body, idx) => {
-      // Offset initial angles so planets are distributed around orbit
       this.angles.set(body.id, (idx * (Math.PI * 2)) / this.bodies.length);
     });
   }
 
   private attachEventListeners(): void {
-    window.addEventListener('resize', () => {
-      this.initCanvasSize();
-      this.initStarfield();
-    });
+    window.addEventListener('resize', this.handleResize);
+    this.canvas.addEventListener('mousemove', this.handleMouseMove);
+    this.canvas.addEventListener('mouseleave', this.handleMouseLeave);
+    this.canvas.addEventListener('click', this.handleClick);
+  }
 
-    this.canvas.addEventListener('mousemove', (e) => {
-      const rect = this.canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-      this.checkHover(mouseX, mouseY);
-    });
+  private toCanvasPoint(e: MouseEvent): { x: number; y: number } {
+    const rect = this.canvas.getBoundingClientRect();
+    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  }
 
-    this.canvas.addEventListener('click', (e) => {
-      const rect = this.canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-      const clickedBody = this.getBodyAtPosition(mouseX, mouseY);
-      if (clickedBody) {
-        this.selectBody(clickedBody.id);
-      }
-    });
+  private getBodyPosition(body: CelestialBody): { x: number; y: number } {
+    const angle = this.angles.get(body.id) ?? 0;
+    return {
+      x: this.width / 2 + Math.cos(angle) * body.orbitDistance,
+      y: this.height / 2 + Math.sin(angle) * body.orbitDistance * ORBIT_TILT,
+    };
   }
 
   private getBodyAtPosition(x: number, y: number): CelestialBody | null {
-    const centerX = this.canvas.width / 2;
-    const centerY = this.canvas.height / 2;
+    let closest: CelestialBody | null = null;
+    let closestDist = Infinity;
 
     for (const body of this.bodies) {
-      const angle = this.angles.get(body.id) || 0;
-      const bodyX = centerX + Math.cos(angle) * body.orbitDistance;
-      const bodyY = centerY + Math.sin(angle) * (body.orbitDistance * 0.45); // Elliptical perspective
-      const dist = Math.hypot(x - bodyX, y - bodyY);
-
-      if (dist <= body.radius + 10) {
-        return body;
+      const pos = this.getBodyPosition(body);
+      const dist = Math.hypot(x - pos.x, y - pos.y);
+      if (dist <= body.radius + HIT_PADDING && dist < closestDist) {
+        closest = body;
+        closestDist = dist;
       }
     }
-    return null;
-  }
-
-  private checkHover(x: number, y: number): void {
-    const hovered = this.getBodyAtPosition(x, y);
-    this.hoveredBodyId = hovered ? hovered.id : null;
-    this.canvas.style.cursor = hovered ? 'pointer' : 'default';
+    return closest;
   }
 
   public selectBody(bodyId: string): void {
-    this.selectedBodyId = bodyId;
     const body = this.bodies.find((b) => b.id === bodyId);
-    if (body && this.onSelectCallback) {
-      this.onSelectCallback(body);
-    }
+    if (!body) return;
+
+    this.selectedBodyId = bodyId;
+    this.onSelectCallback?.(body);
   }
 
   public startAnimation(): void {
-    const render = () => {
-      this.updateState();
+    if (this.animationFrameId !== null) return;
+
+    this.lastFrameTime = performance.now();
+    const render = (now: number): void => {
+      const scale = Math.min((now - this.lastFrameTime) / FRAME_MS, MAX_FRAME_SCALE);
+      this.lastFrameTime = now;
+
+      this.updateState(scale);
       this.draw();
       this.animationFrameId = requestAnimationFrame(render);
     };
-    render();
+    this.animationFrameId = requestAnimationFrame(render);
   }
 
   public stopAnimation(): void {
@@ -151,26 +200,35 @@ export class PlanetViewer {
     }
   }
 
-  private updateState(): void {
-    // Update planet angles
+  public destroy(): void {
+    this.stopAnimation();
+    window.removeEventListener('resize', this.handleResize);
+    this.canvas.removeEventListener('mousemove', this.handleMouseMove);
+    this.canvas.removeEventListener('mouseleave', this.handleMouseLeave);
+    this.canvas.removeEventListener('click', this.handleClick);
+  }
+
+  private updateState(scale: number): void {
     this.bodies.forEach((body) => {
-      const current = this.angles.get(body.id) || 0;
-      this.angles.set(body.id, current + body.orbitSpeed);
+      const current = this.angles.get(body.id) ?? 0;
+      this.angles.set(body.id, current + body.orbitSpeed * scale);
     });
 
-    // Update star twinkle
     this.stars.forEach((star) => {
-      star.brightness += star.twinkleSpeed;
-      if (star.brightness > 1 || star.brightness < 0.2) {
-        star.twinkleSpeed = -star.twinkleSpeed;
+      star.brightness += star.twinkleSpeed * scale;
+      if (star.brightness >= 1) {
+        star.brightness = 1;
+        star.twinkleSpeed = -Math.abs(star.twinkleSpeed);
+      } else if (star.brightness <= 0.2) {
+        star.brightness = 0.2;
+        star.twinkleSpeed = Math.abs(star.twinkleSpeed);
       }
     });
 
-    // Random meteor spawn
-    if (Math.random() < 0.02 && this.meteors.length < 3) {
+    if (Math.random() < METEOR_SPAWN_CHANCE * scale && this.meteors.length < MAX_METEORS) {
       this.meteors.push({
-        x: Math.random() * this.canvas.width * 0.8,
-        y: Math.random() * this.canvas.height * 0.3,
+        x: Math.random() * this.width * 0.8,
+        y: Math.random() * this.height * 0.3,
         length: Math.random() * 80 + 40,
         speed: Math.random() * 8 + 6,
         opacity: 1,
@@ -178,203 +236,169 @@ export class PlanetViewer {
       });
     }
 
-    // Update meteors
     this.meteors = this.meteors.filter((meteor) => {
-      meteor.x += Math.cos(meteor.angle) * meteor.speed;
-      meteor.y += Math.sin(meteor.angle) * meteor.speed;
-      meteor.opacity -= 0.015;
+      meteor.x += Math.cos(meteor.angle) * meteor.speed * scale;
+      meteor.y += Math.sin(meteor.angle) * meteor.speed * scale;
+      meteor.opacity -= 0.015 * scale;
       return meteor.opacity > 0;
     });
   }
 
   private draw(): void {
-    const { width, height } = this.canvas;
-    this.ctx.clearRect(0, 0, width, height);
+    const { ctx, width, height } = this;
+    const centerX = width / 2;
+    const centerY = height / 2;
 
-    // 1. Deep Space Gradient Background
-    const bgGrad = this.ctx.createRadialGradient(
-      width / 2,
-      height / 2,
+    ctx.clearRect(0, 0, width, height);
+
+    const bgGrad = ctx.createRadialGradient(
+      centerX,
+      centerY,
       50,
-      width / 2,
-      height / 2,
+      centerX,
+      centerY,
       Math.max(width, height) / 1.2
     );
     bgGrad.addColorStop(0, '#0a0d1e');
     bgGrad.addColorStop(0.5, '#050714');
     bgGrad.addColorStop(1, '#020308');
-    this.ctx.fillStyle = bgGrad;
-    this.ctx.fillRect(0, 0, width, height);
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, width, height);
 
-    // 2. Render Starfield
     this.stars.forEach((star) => {
-      this.ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
-      this.ctx.beginPath();
-      this.ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-      this.ctx.fill();
+      ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+      ctx.fill();
     });
 
-    // 3. Render Meteors
     this.meteors.forEach((m) => {
       const tailX = m.x - Math.cos(m.angle) * m.length;
       const tailY = m.y - Math.sin(m.angle) * m.length;
 
-      const grad = this.ctx.createLinearGradient(m.x, m.y, tailX, tailY);
-      grad.addColorStop(0, `rgba(0, 240, 255, ${m.opacity})`);
-      grad.addColorStop(1, `rgba(0, 240, 255, 0)`);
+      const grad = ctx.createLinearGradient(m.x, m.y, tailX, tailY);
+      grad.addColorStop(0, `rgba(0, 240, 255, ${Math.max(m.opacity, 0)})`);
+      grad.addColorStop(1, 'rgba(0, 240, 255, 0)');
 
-      this.ctx.strokeStyle = grad;
-      this.ctx.lineWidth = 2;
-      this.ctx.beginPath();
-      this.ctx.moveTo(m.x, m.y);
-      this.ctx.lineTo(tailX, tailY);
-      this.ctx.stroke();
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(m.x, m.y);
+      ctx.lineTo(tailX, tailY);
+      ctx.stroke();
     });
 
-    const centerX = width / 2;
-    const centerY = height / 2;
+    const coreGrad = ctx.createRadialGradient(centerX, centerY, 5, centerX, centerY, 35);
+    coreGrad.addColorStop(0, '#ffffff');
+    coreGrad.addColorStop(0.4, '#00f0ff');
+    coreGrad.addColorStop(1, 'rgba(0, 240, 255, 0)');
+    ctx.fillStyle = coreGrad;
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 35, 0, Math.PI * 2);
+    ctx.fill();
 
-    // 4. Render Central Star / Space Station Gateway Core
-    const sunGrad = this.ctx.createRadialGradient(
+    ctx.fillStyle = '#050714';
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 12, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#00f0ff';
+    ctx.font = 'bold 10px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('SOL', centerX, centerY);
+
+    this.bodies.forEach((body) => this.drawBody(body, centerX, centerY));
+  }
+
+  private drawBody(body: CelestialBody, centerX: number, centerY: number): void {
+    const { ctx } = this;
+    const { x: bodyX, y: bodyY } = this.getBodyPosition(body);
+    const r = body.radius;
+
+    const isSelected = this.selectedBodyId === body.id;
+    const isHovered = this.hoveredBodyId === body.id;
+
+    ctx.strokeStyle = isSelected
+      ? 'rgba(0, 240, 255, 0.4)'
+      : isHovered
+      ? 'rgba(255, 255, 255, 0.25)'
+      : 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = isSelected ? 2 : 1;
+    ctx.setLineDash(body.category === 'satellite' ? [4, 4] : []);
+    ctx.beginPath();
+    ctx.ellipse(
       centerX,
       centerY,
-      5,
-      centerX,
-      centerY,
-      35
+      body.orbitDistance,
+      body.orbitDistance * ORBIT_TILT,
+      0,
+      0,
+      Math.PI * 2
     );
-    sunGrad.addColorStop(0, '#ffffff');
-    sunGrad.addColorStop(0.4, '#00f0ff');
-    sunGrad.addColorStop(1, 'rgba(0, 240, 255, 0)');
+    ctx.stroke();
+    ctx.setLineDash([]);
 
-    this.ctx.fillStyle = sunGrad;
-    this.ctx.beginPath();
-    this.ctx.arc(centerX, centerY, 35, 0, Math.PI * 2);
-    this.ctx.fill();
+    const auraRad = r * (isSelected ? 2.5 : isHovered ? 2.0 : 1.5);
+    const glowGrad = ctx.createRadialGradient(bodyX, bodyY, r * 0.5, bodyX, bodyY, auraRad);
+    glowGrad.addColorStop(0, body.color);
+    glowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glowGrad;
+    ctx.beginPath();
+    ctx.arc(bodyX, bodyY, auraRad, 0, Math.PI * 2);
+    ctx.fill();
 
-    // Core icon/text
-    this.ctx.fillStyle = '#050714';
-    this.ctx.beginPath();
-    this.ctx.arc(centerX, centerY, 12, 0, Math.PI * 2);
-    this.ctx.fill();
-    this.ctx.fillStyle = '#00f0ff';
-    this.ctx.font = 'bold 10px monospace';
-    this.ctx.textAlign = 'center';
-    this.ctx.textBaseline = 'middle';
-    this.ctx.fillText('SOL', centerX, centerY);
+    ctx.fillStyle = body.color;
+    ctx.beginPath();
+    ctx.arc(bodyX, bodyY, r, 0, Math.PI * 2);
+    ctx.fill();
 
-    // 5. Render Orbits & Bodies
-    this.bodies.forEach((body) => {
-      const angle = this.angles.get(body.id) || 0;
-      const bodyX = centerX + Math.cos(angle) * body.orbitDistance;
-      const bodyY = centerY + Math.sin(angle) * (body.orbitDistance * 0.45);
+    const shadowGrad = ctx.createRadialGradient(
+      bodyX - r * 0.4,
+      bodyY - r * 0.4,
+      r * 0.1,
+      bodyX + r * 0.3,
+      bodyY + r * 0.3,
+      r * 1.2
+    );
+    shadowGrad.addColorStop(0, 'rgba(255,255,255,0.4)');
+    shadowGrad.addColorStop(0.5, 'rgba(0,0,0,0.1)');
+    shadowGrad.addColorStop(1, 'rgba(0,0,0,0.85)');
+    ctx.fillStyle = shadowGrad;
+    ctx.beginPath();
+    ctx.arc(bodyX, bodyY, r, 0, Math.PI * 2);
+    ctx.fill();
 
-      const isSelected = this.selectedBodyId === body.id;
-      const isHovered = this.hoveredBodyId === body.id;
+    if (isSelected || isHovered) {
+      ctx.strokeStyle = isSelected ? '#00f0ff' : '#7000ff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(bodyX, bodyY, r + 6, 0, Math.PI * 2);
+      ctx.stroke();
 
-      // Draw Orbit Path
-      this.ctx.strokeStyle = isSelected
-        ? 'rgba(0, 240, 255, 0.4)'
-        : isHovered
-        ? 'rgba(255, 255, 255, 0.25)'
-        : 'rgba(255, 255, 255, 0.08)';
-      this.ctx.lineWidth = isSelected ? 2 : 1;
-      this.ctx.setLineDash(body.category === 'satellite' ? [4, 4] : []);
-      this.ctx.beginPath();
-      this.ctx.ellipse(
-        centerX,
-        centerY,
-        body.orbitDistance,
-        body.orbitDistance * 0.45,
-        0,
-        0,
-        Math.PI * 2
-      );
-      this.ctx.stroke();
-      this.ctx.setLineDash([]);
+      ctx.strokeStyle = '#00f0ff';
+      ctx.lineWidth = 1;
+      const offset = r + 10;
+      ctx.beginPath();
+      ctx.moveTo(bodyX - offset, bodyY - offset + 4);
+      ctx.lineTo(bodyX - offset, bodyY - offset);
+      ctx.lineTo(bodyX - offset + 4, bodyY - offset);
+      ctx.moveTo(bodyX + offset, bodyY + offset - 4);
+      ctx.lineTo(bodyX + offset, bodyY + offset);
+      ctx.lineTo(bodyX + offset - 4, bodyY + offset);
+      ctx.stroke();
+    }
 
-      // Body Glow
-      const auraRad = body.radius * (isSelected ? 2.5 : isHovered ? 2.0 : 1.5);
-      const glowGrad = this.ctx.createRadialGradient(
-        bodyX,
-        bodyY,
-        body.radius * 0.5,
-        bodyX,
-        bodyY,
-        auraRad
-      );
-      glowGrad.addColorStop(0, body.color);
-      glowGrad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = isSelected ? '#00f0ff' : '#ffffff';
+    ctx.font = isSelected ? 'bold 12px Inter, sans-serif' : '11px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(body.name, bodyX, bodyY + r + 16);
 
-      this.ctx.fillStyle = glowGrad;
-      this.ctx.beginPath();
-      this.ctx.arc(bodyX, bodyY, auraRad, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Body Solid Core
-      this.ctx.fillStyle = body.color;
-      this.ctx.beginPath();
-      this.ctx.arc(bodyX, bodyY, body.radius, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Shadow overlay for 3D sphere feel
-      const shadowGrad = this.ctx.createRadialGradient(
-        bodyX - body.radius * 0.4,
-        bodyY - body.radius * 0.4,
-        body.radius * 0.1,
-        bodyX + body.radius * 0.3,
-        bodyY + body.radius * 0.3,
-        body.radius * 1.2
-      );
-      shadowGrad.addColorStop(0, 'rgba(255,255,255,0.4)');
-      shadowGrad.addColorStop(0.5, 'rgba(0,0,0,0.1)');
-      shadowGrad.addColorStop(1, 'rgba(0,0,0,0.85)');
-
-      this.ctx.fillStyle = shadowGrad;
-      this.ctx.beginPath();
-      this.ctx.arc(bodyX, bodyY, body.radius, 0, Math.PI * 2);
-      this.ctx.fill();
-
-      // Selection Ring HUD
-      if (isSelected || isHovered) {
-        this.ctx.strokeStyle = isSelected ? '#00f0ff' : '#7000ff';
-        this.ctx.lineWidth = 2;
-        this.ctx.beginPath();
-        this.ctx.arc(bodyX, bodyY, body.radius + 6, 0, Math.PI * 2);
-        this.ctx.stroke();
-
-        // HUD crosshairs
-        this.ctx.strokeStyle = '#00f0ff';
-        this.ctx.lineWidth = 1;
-        const offset = body.radius + 10;
-        this.ctx.beginPath();
-        // Top-Left corner tick
-        this.ctx.moveTo(bodyX - offset, bodyY - offset + 4);
-        this.ctx.lineTo(bodyX - offset, bodyY - offset);
-        this.ctx.lineTo(bodyX - offset + 4, bodyY - offset);
-        // Bottom-Right corner tick
-        this.ctx.moveTo(bodyX + offset, bodyY + offset - 4);
-        this.ctx.lineTo(bodyX + offset, bodyY + offset);
-        this.ctx.lineTo(bodyX + offset - 4, bodyY + offset);
-        this.ctx.stroke();
-      }
-
-      // Label & Icon Symbol
-      this.ctx.fillStyle = isSelected ? '#00f0ff' : '#ffffff';
-      this.ctx.font = isSelected
-        ? 'bold 12px Inter, sans-serif'
-        : '11px Inter, sans-serif';
-      this.ctx.textAlign = 'center';
-      this.ctx.fillText(body.name, bodyX, bodyY + body.radius + 16);
-
-      // Symbol
-      this.ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      this.ctx.font = '10px monospace';
-      this.ctx.fillText(
-        `${body.featuredImgSymbol} ${body.category.toUpperCase()}`,
-        bodyX,
-        bodyY + body.radius + 28
-      );
-    });
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '10px monospace';
+    ctx.fillText(
+      `${body.featuredImgSymbol} ${body.category.toUpperCase()}`,
+      bodyX,
+      bodyY + r + 28
+    );
   }
 }

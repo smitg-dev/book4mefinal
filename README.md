@@ -1,67 +1,21 @@
-# 🚀 BookFromSpace - Interplanetary Service Booking & Orbital Environment
+BookFromSpace
 
-A self-contained, interactive space-themed web application and TypeScript module built for exploring celestial destinations (planets, moons, and satellites) and booking space services (orbital hotel stays, surface expeditions, zero-g training, spacewalks, and satellite maintenance tours).
+BookFromSpace is a space themed web project where you can explore different planets, moons and satellites and also book different kinds of space services. The idea was to make it feel more like an actual space travel system instead of just a normal booking website.
 
----
+You can explore places like Mars, the Moon, Europa, the ISS, Titan and the JWST and see information about each one. There is also an interactive space background with stars, meteors and orbit paths running on canvas.
 
-## 🌌 Key Features
+The main part of the project is the booking system. You can choose where you want to go, select a service and then go through the booking steps. Services include things like orbital hotel stays, surface expeditions, zero gravity training, spacewalks and satellite related tours.
 
-### 1. Planetary & Satellite Visual Environment
-- **Canvas Orbit Simulator**: Dynamic starfield engine with twinkling star particles, shooting meteors, deep space atmospheric gradients, and elliptical orbital trajectories.
-- **6 Featured Celestial Destinations & Satellites**:
-  - 🔴 **Mars (Ares Prime Hub)**: Red atmosphere, Olympus Mons, Valles Marineris canyon rover expeditions.
-  - 🌕 **Luna Gateway (The Moon)**: Shackleton crater south pole habitat, historic Apollo 11 buggy safari.
-  - 🧊 **Europa Cryo Terminal**: Jovian sky suites, sub-surface liquid ocean submersibles.
-  - 🛰️ **ISS Orbital Hotel**: Microgravity spacewalks, 16 sunrises/day Cupola viewing, zero-g astronaut school.
-  - 🪐 **Titan Saturn Outpost**: Atmospheric wingsuit gliding, liquid methane yacht cruises.
-  - 🔭 **JWST Deep Relayer**: Lagrange Point L2 quantum telescope observation night.
-- **Interactive Telemetry HUD**: Click or hover over any celestial body to focus the camera and display live surface specs (Gravity, Distance from Earth, Surface Temp, Atmosphere).
+The project currently has 6 main destinations. Mars has the Ares Prime Hub with things like rover expeditions around Olympus Mons and Valles Marineris. Luna Gateway is based around the Moon and includes the Shackleton crater habitat and an Apollo style buggy tour. Europa Cryo Terminal has the Jovian sky suites and underwater exploration using submersibles. The ISS Orbital Hotel focuses more on microgravity activities, spacewalks and astronaut training. Titan Saturn Outpost has things like atmospheric gliding and methane sea cruises, while the JWST Deep Relayer is based around observations from the L2 point.
 
-### 2. Space Service Booking System
-- **Interactive Service Catalog**: Filter by celestial destination, category (Hotel, Expedition, Training, Transport, Satellite), or keyword search.
-- **Multi-Step Space Booking Wizard**:
-  - **Step 1**: Select Destination Planet/Satellite & Service Package.
-  - **Step 2**: Select Spaceport (Kennedy Spaceport, Starbase Boca Chica, Tokyo Spaceport, Guiana) & Launch Vehicle (SpaceX Starship, Blue Origin New Glenn, Orion SLS).
-  - **Step 3**: Launch Window Dates & Passenger Roster details.
-  - **Step 4**: Mission Addons (Tailored Spacesuit, Centrifuge Training, Radiation Shielding, Quantum Comms).
-  - **Step 5**: Boarding Pass Generator & Confirmation.
-- **Futuristic Boarding Pass Generator**: Interactive sci-fi ticket containing QR security hash, seat assignment, pad gate code, flight specs, and print support.
-- **Reservation Manager**: View, filter, view boarding passes, or abort/cancel active space missions with `localStorage` persistence.
-- **Web Audio Sound Synthesizer**: Atmospheric audio feedback (warp speed pass, click beeps, sci-fi tones) generated entirely in-browser.
+There is also a canvas based orbital environment in the background. It has moving stars, small twinkling effects, shooting meteors and orbital paths. Clicking on a planet or satellite moves the view towards it and shows some information about it such as gravity, distance from Earth, surface temperature and atmosphere.
 
----
+For the booking system, I made a multi step booking flow. First you select the destination and service. After that you choose a spaceport and launch vehicle. Then you enter the launch date and passenger details. There is also an addon section where you can add things like a custom spacesuit, centrifuge training, radiation shielding and quantum communication.
 
-## 📁 File Structure
+Once the booking is completed, the site creates a boarding pass for the mission. It includes things like the seat, gate, flight information and a QR/security hash. The boarding pass can also be printed.
 
-```
-bookfromspace/
-├── index.html               # Standalone entry HTML for the space dashboard & booking system
-├── styles.css               # Sci-Fi HUD design system, glassmorphism, orbit animations
-├── main.ts                  # Main TypeScript entry point (Canvas engine, state, event listeners)
-├── types.ts                 # TypeScript interfaces (CelestialBody, SpaceService, Reservation, etc.)
-├── app.js                  # Standalone JS bundle for direct browser execution
-├── tsconfig.json            # Isolated TypeScript configuration for bookfromspace
-├── README.md                # Architecture, features, and user documentation
-└── components/
-    ├── planetViewer.ts      # Canvas orbital simulation engine & starfield renderer
-    └── bookingWizard.ts     # Booking wizard, reservation manager & Web Audio synth
-```
+Bookings are saved using localStorage, so they don't disappear when the page is refreshed. There is a reservation section where you can look at existing bookings, open their boarding passes or cancel a mission.
 
----
+I also added some small sound effects using the Web Audio API. Things like button clicks, sci-fi tones and warp effects are generated directly in the browser instead of using external audio files.
 
-## 🛠️ How to Run & Integrate
-
-### Option 1: Standalone Direct Launch
-Simply open `bookfromspace/index.html` in any web browser or use a local web server (e.g. Vite, Live Server, `npx serve bookfromspace`).
-
-### Option 2: TypeScript Compilation
-To compile the TypeScript source files:
-```bash
-cd bookfromspace
-npx tsc
-```
-
----
-
-## 🔒 Scope & Isolation Guarantee
-This module is strictly self-contained within `d:\Projects\VSCODE\Book4meFinal\bookfromspace\`. No external files in the parent codebase were modified or impacted.
+You can open `index.html` directly in a browser, although using a local server works better.
